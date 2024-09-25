@@ -1,5 +1,7 @@
 
 
+import 'dart:developer';
+
 import 'channels/channels.dart';
 import 'playlists/playlist_client.dart';
 import 'reverse_engineering/player/player_response.dart';
@@ -48,7 +50,8 @@ class YouTubeService {
         'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=$videoId&key=$apiKey';
 
     final response = await http.get(Uri.parse(url));
-
+    log(response.body);
+    
     if (response.statusCode == 200) {
       // final data = json.decode(response.body);
       // if (data['items'].isNotEmpty) {
