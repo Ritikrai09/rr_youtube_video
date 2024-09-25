@@ -1,6 +1,6 @@
 import 'package:test/expect.dart';
 import 'package:test/test.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:youtube_explode_dart_2/youtube_explode_dart.dart';
 
 import 'data.dart';
 

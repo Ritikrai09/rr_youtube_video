@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:youtube_explode_dart_2/youtube_explode_dart.dart';
 
 void main() {
   group('These are valid channel ids', () {

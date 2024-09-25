@@ -45,7 +45,7 @@ youtube_explode_dart: ^1.10.4
 
 Import the library
 ```dart
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:youtube_explode_dart_2/youtube_explode_dart.dart';
 ```
 
 ### Getting metadata of a video
