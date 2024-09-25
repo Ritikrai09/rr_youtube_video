@@ -141,7 +141,7 @@ class StreamClient {
 
   Stream<StreamInfo> _getStream(VideoId videoId,
       Map<String, Map<String, Map<String, Object>>> ytClient) async* {
-    final playerResponse = await YouTubeService("AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39").fetchVideoDetails(videoId.value);
+    final playerResponse = await YouTubeService("AIzaSyCiZZOhXu0T_jaXHlEyDhIk7vM61aqdI2A").fetchVideoDetails(videoId.value);
         // await _controller.getPlayerResponse(videoId, ytClient);
     if (!playerResponse.previewVideoId.isNullOrWhiteSpace) {
       throw VideoRequiresPurchaseException.preview(
