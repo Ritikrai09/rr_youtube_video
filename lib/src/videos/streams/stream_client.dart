@@ -8,6 +8,7 @@ import '../../reverse_engineering/cipher/cipher_manifest.dart';
 import '../../reverse_engineering/heuristics.dart';
 import '../../reverse_engineering/models/stream_info_provider.dart';
 import '../../reverse_engineering/pages/watch_page.dart';
+import '../../reverse_engineering/player/player_response.dart';
 import '../../reverse_engineering/youtube_http_client.dart';
 import '../video_controller.dart';
 import '../video_id.dart';
@@ -30,7 +31,7 @@ class StreamClient {
   /// If [fullManifest] is set to `true`, more streams types will be fetched
   /// and track of different languages (if present) will be included.
   Future<StreamManifest> getManifest(dynamic videoId,
-      {bool fullManifest = false}) {
+      {String? apiKey,bool fullManifest = false}) {
     videoId = VideoId.fromString(videoId);
 
     return retry(_httpClient, () async {
@@ -118,7 +119,7 @@ class StreamClient {
   }
 
   Stream<StreamInfo> _getStreams(VideoId videoId,
-      {required bool fullManifest}) async* {
+      {required bool fullManifest,String? apiKey}) async* {
     try {
       // Use await for instead of yield* to catch exceptions
       await for (final stream
@@ -127,7 +128,7 @@ class StreamClient {
       }
       if (fullManifest) {
         await for (final stream
-            in _getStream(videoId, VideoController.androidClient)) {
+            in _getStream(videoId, VideoController.androidClient,apiKey:apiKey)) {
           yield stream;
         }
       }
@@ -140,9 +141,18 @@ class StreamClient {
   }
 
   Stream<StreamInfo> _getStream(VideoId videoId,
-      Map<String, Map<String, Map<String, Object>>> ytClient) async* {
-    final playerResponse = await YouTubeService("AIzaSyCiZZOhXu0T_jaXHlEyDhIk7vM61aqdI2A").fetchVideoDetails(videoId.value);
-        // await _controller.getPlayerResponse(videoId, ytClient);
+      Map<String, Map<String, Map<String, Object>>> ytClient,{String? apiKey}) async* {
+       
+       PlayerResponse playerResponse;
+
+        if (apiKey != null) {
+          
+           playerResponse = await YouTubeService(apiKey).fetchVideoDetails(videoId.value);
+        } else {
+          
+            playerResponse =  await _controller.getPlayerResponse(videoId, ytClient);
+        }
+      
     if (!playerResponse.previewVideoId.isNullOrWhiteSpace) {
       throw VideoRequiresPurchaseException.preview(
         videoId,

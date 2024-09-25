@@ -26,13 +26,16 @@ class YoutubeExplode {
   /// YouTube search queries.
   late final SearchClient search;
 
+   late final String apiKey;
+
   /// Initializes an instance of [YoutubeClient].
-  YoutubeExplode([YoutubeHttpClient? httpClient])
+  YoutubeExplode([String? apiKey,YoutubeHttpClient? httpClient])
       : _httpClient = httpClient ?? YoutubeHttpClient() {
     videos = VideoClient(_httpClient);
     playlists = PlaylistClient(_httpClient);
     channels = ChannelClient(_httpClient);
     search = SearchClient(_httpClient);
+    apiKey = apiKey;
   }
 
   /// Closes the HttpClient assigned to this [YoutubeHttpClient].
