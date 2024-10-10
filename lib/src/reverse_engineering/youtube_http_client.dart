@@ -184,7 +184,7 @@ class YoutubeHttpClient extends http.BaseClient {
     }
   }
 
-  Stream<List<int>> _getStream(
+    Stream<List<int>> _getStream(
     StreamInfo streamInfo, {
     Map<String, String> headers = const {},
     bool validate = true,

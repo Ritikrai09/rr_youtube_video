@@ -10,9 +10,8 @@ class VideoController {
   static const androidTestSuiteClient = {
     'context': {
       'client': {
-        'clientName': 'ANDROID_TESTSUITE',
-        'clientVersion': '1.9',
-        'androidSdkVersion': 30,
+        'clientName': 'ANDROID_CREATOR',
+        'clientVersion': '24.24.100',
         'hl': 'en',
         'gl': 'US',
         'utcOffsetMinutes': 0,
