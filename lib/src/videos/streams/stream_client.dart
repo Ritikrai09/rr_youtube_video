@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:developer';
 
 import 'package:logging/logging.dart';
 
@@ -160,9 +161,16 @@ class StreamClient {
 
   Stream<StreamInfo> _getStream(VideoId videoId, YoutubeApiClient ytClient,
       bool requireWatchPage) async* {
+
+         log("_httpClient.toJson().toString()");
+         log(_httpClient.toString());
+
     final watchPage = requireWatchPage
         ? await WatchPage.get(_httpClient, videoId.value)
         : null;
+  
+     log("ytClient.toJson().toString()");
+    log(ytClient.toJson().toString());
 
     final playerResponse = await _controller
         .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
