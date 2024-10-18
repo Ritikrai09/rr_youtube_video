@@ -169,8 +169,7 @@ class StreamClient {
         ? await WatchPage.get(_httpClient, videoId.value)
         : null;
   
-     log("ytClient.toJson().toString()");
-    log(ytClient.toJson().toString());
+     log("ytClient.toJson().toString() ${ytClient.toJson().toString()}");
 
     final playerResponse = await _controller
         .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
