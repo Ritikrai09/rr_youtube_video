@@ -24,9 +24,7 @@ class VideoController {
     final userAgent = payload['context']!['client']!['userAgent'] as String?;
     final ytCfg = watchPage?.ytCfg;
 
-    final content = await httpClient.postString(
-      client.apiUrl,
-      body: {
+    var body = {
         ...payload,
         'videoId': videoId.value,
         if (ytCfg?.containsKey('STS') ?? false)
@@ -36,8 +34,11 @@ class VideoController {
               'signatureTimestamp': ytCfg!['STS'].toString()
             }
           },
-      },
-      headers: {
+      };
+
+    log("body $body");
+
+     Map<String, String> headerss = {
         if (userAgent != null) 'User-Agent': userAgent,
         'X-Youtube-Client-Name': payload['context']!['client']!['clientName'],
         'X-Youtube-Client-Version':
@@ -50,10 +51,21 @@ class VideoController {
         'Content-Type': 'application/json',
         if (watchPage != null) 'Cookie': watchPage.cookieString,
         ...client.headers,
-      },
+      };
+     
+     log("client.apiUrl ${client.apiUrl}");
+
+     log("header $headerss");
+
+    final content = await httpClient.postString(
+      client.apiUrl,
+      body: body,
+      headers: headerss,
     );
+
      log("======= Player response page response ========");
       log(content);
+
     return PlayerResponse.parse(content);
   }
 }
