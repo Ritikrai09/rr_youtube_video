@@ -170,19 +170,19 @@ class StreamClient {
   
     //  log("ytClient.toJson().toString() ${ytClient.toJson().toString()}");
 
-    // final playerResponse = await _controller
-    //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
-
-     final playerResponse = await Isolate.run<PlayerResponse>(
-      () async {
-        
-        var data = await _controller
+    final playerResponse = await _controller
         .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
 
-        return data;
-      },
-      /* Send necessary data here, possibly wrapped in a custom class or map */
-    );
+    //  final playerResponse = await Isolate.run<PlayerResponse>(
+    //   () async {
+        
+    //     var data = await _controller
+    //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
+
+    //     return data;
+    //   },
+    //   /* Send necessary data here, possibly wrapped in a custom class or map */
+    // );
     //  final receivePort = ReceivePort(); // Create a receive port
 
       // Spawn the isolate
