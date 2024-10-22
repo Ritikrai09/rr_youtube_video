@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:developer';
+import 'dart:isolate';
 
 import 'package:logging/logging.dart';
 
@@ -10,6 +11,7 @@ import '../../retry.dart';
 import '../../reverse_engineering/heuristics.dart';
 import '../../reverse_engineering/models/stream_info_provider.dart';
 import '../../reverse_engineering/pages/watch_page.dart';
+import '../../reverse_engineering/player/player_response.dart';
 import '../../reverse_engineering/youtube_http_client.dart';
 import '../video_id.dart';
 import '../youtube_api_client.dart';
@@ -166,10 +168,38 @@ class StreamClient {
         ? await WatchPage.get(_httpClient, videoId.value)
         : null;
   
-     log("ytClient.toJson().toString() ${ytClient.toJson().toString()}");
+    //  log("ytClient.toJson().toString() ${ytClient.toJson().toString()}");
 
-    final playerResponse = await _controller
-        .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
+    // final playerResponse = await _controller
+    //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
+
+    //  final responseStream = await Isolate.spawn<PlayerResponse>(
+    //   (PlayerResponse sendPort)async {
+    //     await _controller
+    //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
+    //   }, playerResponse
+    //   /* Send necessary data here, possibly wrapped in a custom class or map */
+    // );
+     final receivePort = ReceivePort(); // Create a receive port
+
+      // Spawn the isolate
+      await Isolate.spawn(_isolateSendPlayerResponse, receivePort.sendPort);
+
+      // Wait for the isolate to send back its send port
+      final sendPort = await receivePort.first as SendPort;
+
+      // Send parameters to the isolate
+      sendPort.send([
+        {
+          'videoId': videoId,
+          'ytClient': ytClient, // Ensure ytClient is serializable
+          'watchPage': watchPage,
+        },
+      ]);
+
+     await for (final playerResponse in receivePort) {
+    // If the result is a List<StreamInfo>
+    if (playerResponse is PlayerResponse) {
 
     if (!playerResponse.previewVideoId.isNullOrWhiteSpace) {
       throw VideoRequiresPurchaseException.preview(
@@ -188,6 +218,7 @@ class StreamClient {
         reason: playerResponse.videoPlayabilityError ?? '',
       );
     }
+
     yield* _parseStreamInfo(playerResponse.streams,
         watchPage: watchPage, videoId: videoId);
 
@@ -203,7 +234,31 @@ class StreamClient {
       yield* _parseStreamInfo(hlsManifest.streams,
           watchPage: watchPage, videoId: videoId);
     }
+    }
+     }
   }
+
+Future<void> _isolateSendPlayerResponse(SendPort sendPort) async {
+  final receivePort = ReceivePort();
+  sendPort.send(receivePort.sendPort); // Send back the send port
+
+  await for (final message in receivePort) {
+    final params = message[0];
+    final videoId = params['videoId'] as VideoId;
+    final ytClient = params['ytClient'] as YoutubeApiClient;
+    final requireWatchPage = params['watchPage'] as WatchPage;
+
+    try {
+      final streamInfoList = await _controller.getPlayerResponse(videoId, ytClient, watchPage:  requireWatchPage);
+       log("spawn streamInfoList.toString()");
+      log(streamInfoList.toString());
+      sendPort.send(streamInfoList); // Send back the result
+    } catch (e) {
+      sendPort.send({'error': e.toString()}); // Send error back
+    }
+  }
+}
+
 
   Future<String> _getDecipherFunction(WatchPage watchPage) async {
     final playerScript = await _httpClient.getString(watchPage.sourceUrl);
