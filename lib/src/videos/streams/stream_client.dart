@@ -173,33 +173,36 @@ class StreamClient {
     // final playerResponse = await _controller
     //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
 
-    //  final responseStream = await Isolate.spawn<PlayerResponse>(
-    //   (PlayerResponse sendPort)async {
-    //     await _controller
-    //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
-    //   }, playerResponse
-    //   /* Send necessary data here, possibly wrapped in a custom class or map */
-    // );
-     final receivePort = ReceivePort(); // Create a receive port
+     final playerResponse = await Isolate.run<PlayerResponse>(
+      ()async {
+        
+        var data = await _controller
+        .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
+
+        return data;
+      },
+      /* Send necessary data here, possibly wrapped in a custom class or map */
+    );
+    //  final receivePort = ReceivePort(); // Create a receive port
 
       // Spawn the isolate
-      await Isolate.spawn(_isolateSendPlayerResponse, receivePort.sendPort);
+      // await Isolate.spawn(_isolateSendPlayerResponse, receivePort.sendPort);
 
       // Wait for the isolate to send back its send port
-      final sendPort = await receivePort.first as SendPort;
+      // final sendPort = await receivePort.first as SendPort;
 
       // Send parameters to the isolate
-      sendPort.send([
-        {
-          'videoId': videoId,
-          'ytClient': ytClient, // Ensure ytClient is serializable
-          'watchPage': watchPage,
-        },
-      ]);
+      // sendPort.send([
+      //   {
+      //     'videoId': videoId,
+      //     'ytClient': ytClient, // Ensure ytClient is serializable
+      //     'watchPage': watchPage,
+      //   },
+      // ]);
 
-     await for (final playerResponse in receivePort) {
-    // If the result is a List<StreamInfo>
-    if (playerResponse is PlayerResponse) {
+    //  await for (final playerResponse in receivePort) {
+    // // If the result is a List<StreamInfo>
+    // if (playerResponse is PlayerResponse) {
 
     if (!playerResponse.previewVideoId.isNullOrWhiteSpace) {
       throw VideoRequiresPurchaseException.preview(
@@ -234,12 +237,14 @@ class StreamClient {
       yield* _parseStreamInfo(hlsManifest.streams,
           watchPage: watchPage, videoId: videoId);
     }
-    }
-     }
+    // }
+    //  }
   }
 
 Future<void> _isolateSendPlayerResponse(SendPort sendPort) async {
+  
   final receivePort = ReceivePort();
+
   sendPort.send(receivePort.sendPort); // Send back the send port
 
   await for (final message in receivePort) {
