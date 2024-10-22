@@ -174,7 +174,7 @@ class StreamClient {
     //     .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
 
      final playerResponse = await Isolate.run<PlayerResponse>(
-      ()async {
+      () async {
         
         var data = await _controller
         .getPlayerResponse(videoId, ytClient, watchPage: watchPage);
